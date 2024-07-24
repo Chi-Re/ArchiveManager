@@ -1,22 +1,18 @@
 package chire.archivemanager;
 
 import arc.Core;
-import arc.struct.ArrayMap;
 import arc.util.Log;
-import chire.archivemanager.archive.GameData;
-import chire.archivemanager.io.CRJson;
-import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.ArchiveDialog;
+import chire.archivemanager.ui.tree.ArchiveNode;
+import chire.archivemanager.ui.tree.NodeType;
 import mindustry.Vars;
 import mindustry.mod.Mod;
 import mindustry.ui.dialogs.SettingsMenuDialog;
 
-import java.io.IOException;
-
 public class ArchiveManager extends Mod {
     public static String modName;
 
-    public ArchiveDialog archiveDialog;
+    public static ArchiveDialog archiveDialog;
 
     @Override
     public void loadContent(){
@@ -43,22 +39,11 @@ public class ArchiveManager extends Mod {
             });
         }
 
-//        var cj = new CRJson(Vars.modDirectory.child("test.json"));
-//        cj.writeJson("test1", "dsad", "test2", 12, "test3", false, "test4", 1.2);
-//
-//        SaveClass.write(cj.toClassVar(ClassData.class), Vars.modDirectory.child("test.dat"));
-//
-//        Log.info(SaveClass.read(ClassData.class, Vars.modDirectory.child("test.dat")));
 
-//        var df = new DataFile(Vars.modDirectory.child("test.bin"));
-//        df.putClass("test", GameData.class, new GameData());
-//        df.saveValues();
-//        try {
-//            df.loadValues();
-//            Log.info(df.getDataClass("test", GameData.class));
-//        } catch (IOException e) {
-//            Log.err(e);
-//        }
+//        ArchiveNode node = new ArchiveNode("001", NodeType.core_node);
+//        node.addNode(new ArchiveNode("001-001"));
+//
+//        Log.info(node.getChildren());
     }
 
     public static String getBundle(String str){

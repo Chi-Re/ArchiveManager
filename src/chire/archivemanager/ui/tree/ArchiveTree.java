@@ -2,11 +2,13 @@ package chire.archivemanager.ui.tree;
 
 import arc.files.Fi;
 import arc.struct.Seq;
+import chire.archivemanager.archive.GameData;
 import chire.archivemanager.ui.NodeNewDialog;
+import mindustry.content.TechTree;
 import mindustry.gen.Icon;
 
 public class ArchiveTree {
-    //TODO 这是个危险的东西
+
 //    private static ArchiveNode context = null;
 //
 //    public static Seq<ArchiveNode> roots = new Seq<>();
@@ -29,26 +31,33 @@ public class ArchiveTree {
 //        return node;
 //    }
 
-
-    public static ArchiveNode nodeRoot(String name, String description, String fileName, ArchiveNode... children){
-        var root = node(fileName, children);
+    public static ArchiveNode nodeRoot(String name, String description, String fileName){
+        var root = node(fileName, NodeType.core_node);
         root.name = name;
         root.description = description;
         root.icon = Icon.tree;
-        root.setType(NodeType.core_node);
         return root;
     }
 
-    public static ArchiveNode node(String fileName, ArchiveNode... children){
-        return new ArchiveNode(fileName, children);
+    public static ArchiveNode node(String fileName, NodeType type){
+        return new ArchiveNode(fileName, type);
+    }
+    public static ArchiveNode node(String fileName){
+        return new ArchiveNode(fileName);
+    }
+
+    public static ArchiveNode node(GameData config, Fi data, NodeType type){
+        return new ArchiveNode(config, data, type);
+    }
+    public static ArchiveNode node(GameData config, Fi data){
+        return new ArchiveNode(config, data);
     }
 
     public static ArchiveNode nodeNew(){
-        var an = new ArchiveNode(null);
+        var an = node(null, NodeType.node_new);
         an.icon = Icon.add;
         an.name = "创建存档";
         an.setDialog(new NodeNewDialog());
-        an.setType(NodeType.node_new);
 
         return an;
     }
