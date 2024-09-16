@@ -1,7 +1,7 @@
-name: Pull Request Testing
-
-on: [pull_request]
-
+#name: Pull Request Testing
+#
+#on: [pull_request]
+#
 #jobs:
 #  buildJar:
 #    runs-on: ubuntu-latest

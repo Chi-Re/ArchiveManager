@@ -1,7 +1,7 @@
-name: Commit Testing
-
-on: [push]
-
+#name: Commit Testing
+#
+#on: [push]
+#
 #jobs:
 #  buildJar:
 #    runs-on: ubuntu-latest
