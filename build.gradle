@@ -6,6 +6,10 @@ sourceSets.main {
     java.srcDirs = ["src/"]
 }
 
+sourceSets.test {
+    java.srcDirs = ["src/test/"]
+}
+
 repositories{
     mavenCentral()
     maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
@@ -120,8 +124,7 @@ task testMod {
             from "$buildDir/libs/${project.archivesBaseName}Desktop.jar"
             into modPath
         }
-        exec {
-            commandLine 'cmd', "/c", "${gamePath}"
-        }
+        def commandLine = "cmd /c start cmd.exe /c java -jar ${gamePath}"
+        commandLine.execute()
     }
 }
