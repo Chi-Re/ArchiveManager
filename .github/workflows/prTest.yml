@@ -1,6 +1,6 @@
 name: Pull Request Testing
 
-on: [pull_request]
+on:
 
 jobs:
   buildJar:
