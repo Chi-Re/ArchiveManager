@@ -2,6 +2,7 @@ package chire.archivemanager.io;
 
 import arc.files.Fi;
 import arc.func.Prov;
+import arc.struct.ArrayMap;
 import arc.util.io.ReusableByteInStream;
 import arc.util.serialization.Json;
 import arc.util.serialization.UBJsonReader;
@@ -12,6 +13,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class DataFile {
@@ -76,6 +78,10 @@ public class DataFile {
         }
     }
 
+    public synchronized <K, Y> void putMap(String name, ArrayMap<K, Y> map){
+        putClass(name, map.getClass(), map);
+    }
+
     public synchronized boolean has(String name){
         return values.containsKey(name);
     }
@@ -96,6 +102,10 @@ public class DataFile {
         return get(name, null);
     }
 
+    public synchronized String getString(String name){
+        return get(name, "").toString();
+    }
+
     public synchronized <T> T getDataClass(String name, Class<T> type, Class elementType, Prov<T> def){
         try{
             if(!has(name)) return def.get();
@@ -111,9 +121,12 @@ public class DataFile {
     }
 
     public <T> T getDataClass(String name, Class<T> type){
-        return getDataClass(name, type, null);
+        return getDataClass(name, type, ()-> null);
     }
 
+    public ArrayMap<?, ?> getMap(String name){
+        return getDataClass(name, ArrayMap.class, ArrayMap::new);
+    }
 
     public synchronized void remove(String name){
         values.remove(name);
@@ -190,5 +203,18 @@ public class DataFile {
                 throw new IOException("Trailing settings data; expected EOF, but got: " + end);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DataFile{" +
+                "fi=" + fi +
+                ", ureader=" + ureader +
+                ", json=" + json +
+                ", byteStream=" + byteStream +
+                ", byteInputStream=" + byteInputStream +
+                ", values=" + values +
+                ", modified=" + modified +
+                '}';
     }
 }

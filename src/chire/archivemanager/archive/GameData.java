@@ -17,12 +17,13 @@ import java.io.Serializable;
 
 import static mindustry.Vars.content;
 
+/**å…³äºç©å®¶æ¸¸æˆçš„èµ„æº,åœ°å›¾,æ¨¡ç»„ç­‰è¿›åº¦æ•°æ®*/
 public class GameData implements Serializable {
-    /**´æµµµÄ×ÊÔ´ÊıÁ¿*/
+    /**å­˜æ¡£çš„èµ„æºæ•°é‡*/
     public ArrayMap<Item, Integer> itemStorage = new ArrayMap<>();
-    /**´æµµµÄÕ¼ÁìµØÍ¼*/
+    /**å­˜æ¡£çš„å é¢†åœ°å›¾*/
     public Seq<Sector> sectors = new Seq<>();
-    /**´æµµµÄÕ¼ÁìµØÍ¼*/
+    /**å­˜æ¡£çš„æ¨¡ç»„æ•°é‡*/
     public Seq<Mods.LoadedMod> mods = new Seq<>();
 
     public GameData(){
@@ -30,7 +31,7 @@ public class GameData implements Serializable {
     }
 
     public void init(){
-        //³õÊ¼»¯itemStorage
+        //åˆå§‹åŒ–itemStorage
         var items = new ItemSeq(){
             //store sector item amounts for modifications
             ObjectMap<Sector, ItemSeq> cache = new ObjectMap<>();
@@ -89,10 +90,10 @@ public class GameData implements Serializable {
             itemStorage.put(item, items.get(item));
         }
 
-        //³õÊ¼»¯sectors
+        //åˆå§‹åŒ–sectors
         sectors = Vars.ui.planet.state.planet.sectors.select(Sector::hasBase);
 
-        //³õÊ¼»¯mods
+        //åˆå§‹åŒ–mods
         for (var item : Vars.mods.list()) {
             //item.isSupported() && !item.hasUnmetDependencies() && !item.hasContentErrors() && item.enabled()
             mods.add(item);
@@ -111,7 +112,7 @@ public class GameData implements Serializable {
     }
 
     public static GameData read(Fi file){
-        if (!file.exists()) throw new RuntimeException("ÕıÔÚ¶ÁÈ¡µÄÊı¾İÎÄ¼ş²»´æÔÚ£¡");
+        if (!file.exists()) throw new RuntimeException("æ­£åœ¨è¯»å–çš„æ•°æ®æ–‡ä»¶ä¸å­˜åœ¨ï¼");
         DataFile dat = new DataFile(file);
         try {
             dat.loadValues();

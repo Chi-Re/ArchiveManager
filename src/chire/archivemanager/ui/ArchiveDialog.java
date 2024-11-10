@@ -1,478 +1,182 @@
 package chire.archivemanager.ui;
 
 import arc.Core;
+import arc.files.Fi;
+import arc.func.Cons;
 import arc.graphics.Color;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Lines;
-import arc.input.KeyCode;
-import arc.math.Interp;
-import arc.math.Mathf;
-import arc.math.geom.Rect;
-import arc.scene.Element;
-import arc.scene.Group;
-import arc.scene.actions.RelativeTemporalAction;
-import arc.scene.event.ElementGestureListener;
-import arc.scene.event.InputEvent;
-import arc.scene.event.InputListener;
-import arc.scene.event.Touchable;
-import arc.scene.ui.ImageButton;
-import arc.scene.ui.TextButton.TextButtonStyle;
+import arc.graphics.g2d.TextureRegion;
+import arc.scene.ui.TextButton;
+import arc.scene.ui.Tooltip;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
 import arc.struct.ArrayMap;
 import arc.struct.Seq;
-import arc.util.Align;
 import arc.util.Log;
 import arc.util.Nullable;
-import arc.util.Scaling;
-import chire.archivemanager.archive.SaveArchive;
-import chire.archivemanager.ui.tree.ArchiveNode;
-import chire.archivemanager.ui.tree.NodeType;
+import arc.util.Strings;
+import chire.archivemanager.archive.Archives;
+import chire.archivemanager.archive.LoadedArchive;
+import chire.archivemanager.io.DataFile;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
-import mindustry.input.Binding;
-import mindustry.ui.Fonts;
+import mindustry.mod.Mods;
+import mindustry.ui.BorderImage;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
-import mindustry.ui.layout.BranchTreeLayout;
-import mindustry.ui.layout.TreeLayout.TreeNode;
 
-import java.util.Arrays;
+import java.io.IOException;
 
+import static chire.archivemanager.ArchiveManager.archive;
+import static mindustry.Vars.*;
 import static mindustry.Vars.mobile;
-import static mindustry.gen.Tex.buttonDown;
-import static mindustry.gen.Tex.buttonOver;
 
 public class ArchiveDialog extends BaseDialog {
-    public final float nodeSize = Scl.scl(60f);
-    public static ArrayMap<String, TechTreeNode> nodes = new ArrayMap<>();
-    //public TechTreeNode root = new TechTreeNode(ArchiveTree.nodeRoot("¿Õ", "ÕâÊÇ¼ò½é", null, ()->{}), null);
-    //public ArchiveNode lastNode = root.node;
-    public TechTreeNode root = null;
-    public Rect bounds = new Rect();
-    public View view;
+    private float scroll = 0f;
 
-    public ArchiveDialog(){
-        super("");
-
-        margin(0f).marginBottom(8);
-        cont.stack(view = new View()).grow();
-
-        shouldPause = true;
-
-        SaveArchive.loadTree();
-
-        shown(() -> {
-            switchTree(SaveArchive.archiveTree);
-
-            //checkNodes(root);
-            treeLayout();
-
-            view.hoverNode = null;
-            view.infoTable.remove();
-            view.infoTable.clear();
-        });
-
+    public ArchiveDialog() {
+        super("@archive.dialog.title");
         addCloseButton();
 
-        keyDown(key -> {
-            if(key == Core.keybinds.get(Binding.research).key){
-                Core.app.post(this::hide);
-            }
-        });
-
-        //scaling/drag input
-        addListener(new InputListener(){
-            @Override
-            public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY){
-                view.setScale(Mathf.clamp(view.scaleX - amountY / 10f * view.scaleX, 0.25f, 1f));
-                view.setOrigin(Align.center);
-                view.setTransform(true);
-                return true;
-            }
-
-            @Override
-            public boolean mouseMoved(InputEvent event, float x, float y){
-                view.requestScroll();
-                return super.mouseMoved(event, x, y);
-            }
-        });
-
-        touchable = Touchable.enabled;
-
-        addCaptureListener(new ElementGestureListener(){
-            @Override
-            public void zoom(InputEvent event, float initialDistance, float distance){
-                if(view.lastZoom < 0){
-                    view.lastZoom = view.scaleX;
-                }
-
-                view.setScale(Mathf.clamp(distance / initialDistance * view.lastZoom, 0.25f, 1f));
-                view.setOrigin(Align.center);
-                view.setTransform(true);
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, KeyCode button){
-                view.lastZoom = view.scaleX;
-            }
-
-            @Override
-            public void pan(InputEvent event, float x, float y, float deltaX, float deltaY){
-                view.panX += deltaX / view.scaleX;
-                view.panY += deltaY / view.scaleY;
-                view.moved = true;
-                view.clamp();
-            }
-        });
+        shown(this::setup);
+        onResize(this::setup);
     }
 
-    public void switchTree(ArchiveNode node){
-        //if(lastNode == node || node == null) return;
-        nodes.clear();
-        root = new TechTreeNode(node);
-        view.rebuildAll();
-    }
+    void setup(){
+        float h = 110f;
+        float w = Math.min(Core.graphics.getWidth() / Scl.scl(1.05f), 520f);
 
-    void treeLayout(){
-        float spacing = 20f;
-        LayoutNode node = new LayoutNode(root, null);
-        LayoutNode[] children = node.children;
-        LayoutNode[] leftHalf = Arrays.copyOfRange(node.children, 0, Mathf.ceil(node.children.length/2f));
-        LayoutNode[] rightHalf = Arrays.copyOfRange(node.children, Mathf.ceil(node.children.length/2f), node.children.length);
+        cont.clear();
 
-        node.children = leftHalf;
-        new BranchTreeLayout(){{
-            gapBetweenLevels = gapBetweenNodes = spacing;
-            rootLocation = TreeLocation.top;
-        }}.layout(node);
+        cont.table(buttons -> {
+            buttons.left().defaults().growX().height(60f).uniformX();
 
-        float lastY = node.y;
+            TextButton.TextButtonStyle style = Styles.flatBordert;
+            float margin = 12f;
 
-        if(rightHalf.length > 0){
+            buttons.button("@archive.create", Icon.save, style, () -> {
+                archive.save();
+                setup();
+                ui.showInfo("@data.exported");//backup
+            }).margin(margin);
 
-            node.children = rightHalf;
-            new BranchTreeLayout(){{
-                gapBetweenLevels = gapBetweenNodes = spacing;
-                rootLocation = TreeLocation.bottom;
-            }}.layout(node);
+            buttons.button("@archive.import", Icon.add, style, () -> {
 
-            shift(leftHalf, node.y - lastY);
-        }
+            }).margin(margin);
 
-        node.children = children;
-
-        float minx = 0f, miny = 0f, maxx = 0f, maxy = 0f;
-        copyInfo(node);
-
-        for(TechTreeNode n : nodes.values()){
-            minx = Math.min(n.x - n.width/2f, minx);
-            maxx = Math.max(n.x + n.width/2f, maxx);
-            miny = Math.min(n.y - n.height/2f, miny);
-            maxy = Math.max(n.y + n.height/2f, maxy);
-        }
-        bounds = new Rect(minx, miny, maxx - minx, maxy - miny);
-        bounds.y += nodeSize*1.5f;
-    }
-
-    void shift(LayoutNode[] children, float amount){
-        for(LayoutNode node : children){
-            node.y += amount;
-            if(node.children != null && node.children.length > 0) shift(node.children, amount);
-        }
-    }
-
-    void copyInfo(LayoutNode node){
-        node.node.x = node.x;
-        node.node.y = node.y;
-        if(node.children != null){
-            for(LayoutNode child : node.children){
-                copyInfo(child);
-            }
-        }
-    }
-
-    boolean selectable(ArchiveNode node){
-        //return node.content.unlocked() || !node.objectives.contains(i -> !i.complete());
-        return true;
-    }
-
-    boolean current(ArchiveNode node){
-        //return node.content.locked();
-        return node.current;
-    }
-
-    class LayoutNode extends TreeNode<LayoutNode>{
-        final TechTreeNode node;
-
-        LayoutNode(TechTreeNode node, LayoutNode parent){
-            this.node = node;
-            this.parent = parent;
-            this.width = this.height = nodeSize;
-            if(node.getChildren().size != 0){
-                children = Seq.with(node.getChildren()).map(t -> new LayoutNode(t, this)).toArray(LayoutNode.class);
-            }
-        }
-    }
-
-    //extends TreeNode<TechTreeNode>
-    public class TechTreeNode {
-        public final ArchiveNode node;
-
-        public String[] children;
-
-        public float width, height, x, y;
-
-        public final String name;
-
-        public TechTreeNode(ArchiveNode node){
-            Log.info(node);
-            this.node = node;
-            this.name = node.name;
-            this.width = this.height = nodeSize;
-            nodes.put(name, this);
-            children = new String[node.getChildren().size];
-            for(int i = 0; i < children.length; i++){
-                var n = node.getNameChildren().get(i);
-                children[i] = n;
-                nodes.put(n, new TechTreeNode(ArchiveNode.nodes.get(n)));
-            }
-        }
-
-        public Seq<TechTreeNode> getChildren(){
-            Seq<TechTreeNode> nodeChildren = new Seq<>();
-
-            for (String c : children) {
-                Log.info("name×Ó:"+c);
-                nodeChildren.add(nodes.get(c));
-            }
-
-            Log.info("×Ó:"+nodeChildren);
-
-            return nodeChildren;
-        }
-    }
-
-    public class View extends Group{
-        public float panX = 0, panY = -200, lastZoom = -1;
-        public boolean moved = false;
-        public ImageButton hoverNode;
-        public Table infoTable = new Table();
-
-        {
-            rebuildAll();
-        }
-
-        public void rebuildAll(){
-            clear();
-            hoverNode = null;
-            infoTable.clear();
-            infoTable.touchable = Touchable.enabled;
-
-            for(TechTreeNode node : nodes.values()){
-                ImageButton button = new ImageButton(node.node.icon, Styles.nodei);
-                //button.visible(() -> node.visible);
-                button.clicked(() -> {
-                    if(moved) return;
-
-                    if (node.node.type == NodeType.node_new) {
-                        node.node.dialog.show(node.node);
-                        rebuild();
-                        return;
-                    }
-
-                    if(mobile){
-                        hoverNode = button;
-                        rebuild();
-                        float right = infoTable.getRight();
-                        if(right > Core.graphics.getWidth()){
-                            float moveBy = right - Core.graphics.getWidth();
-                            addAction(new RelativeTemporalAction(){
-                                {
-                                    setDuration(0.1f);
-                                    setInterpolation(Interp.fade);
-                                }
-
-                                @Override
-                                protected void updateRelative(float percentDelta){
-                                    panX -= moveBy * percentDelta;
-                                }
-                            });
-                        }
-                    }
-                    //else if(locked(node.node)){
-
-                    //}
-                });
-                button.hovered(() -> {
-                    if(!mobile && hoverNode != button && node.node.type != NodeType.node_new){
-                        hoverNode = button;
-                        rebuild();
+            buttons.button("??????", ()->{
+                platform.showFileChooser(true, "dat", file -> {
+                    try {
+                        var a = new DataFile(file);
+                        a.loadValues();
+                        ui.showErrorMessage(a.getObject("name") + "," + a.getObject("time"));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        ui.showException("@save.import.fail", e);
                     }
                 });
-                button.exited(() -> {
-                    if(!mobile && hoverNode == button && !infoTable.hasMouse() && !hoverNode.hasMouse()){
-                        hoverNode = null;
-                        rebuild();
-                    }
-                });
-                //button.touchable(() -> !node.visible ? Touchable.disabled : Touchable.enabled);
-                button.userObject = node.node;
-                button.setSize(nodeSize);
-                button.update(() -> {
-                    float offset = (Core.graphics.getHeight() % 2) / 2f;
-                    button.setPosition(node.x + panX + width / 2f, node.y + panY + height / 2f + offset, Align.center);
-                    button.getStyle().up = current(node.node) ? Tex.buttonOver : !selectable(node.node) ? Tex.buttonRed : Tex.button;
 
-                    button.getStyle().imageUp = node.node.icon;
-                    button.getImage().setColor(Color.white);
-                    button.getImage().setScaling(Scaling.bounded);
-                });
-                addChild(button);
-            }
+//                var a = new DataFile(SaveArchive.archiveDirectory.child("202409151846").child("current.dat"));
+//                try {
+//                    a.loadValues();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                Log.info(a.getDataClass("same", ArrayMap.class));
+            }).margin(margin);
+        }).width(w);
 
-            if(mobile){
-                tapped(() -> {
-                    Element e = Core.scene.hit(Core.input.mouseX(), Core.input.mouseY(), true);
-                    if(e == this){
-                        hoverNode = null;
-                        rebuild();
-                    }
-                });
-            }
+        cont.row();
 
-            setOrigin(Align.center);
-            setTransform(true);
-            released(() -> moved = false);
-        }
+        if(!archive.list().isEmpty()){
+            cont.pane(e -> {
+                Table table = e.margin(10f).top();
 
-        void clamp(){
-            float pad = nodeSize;
+                table.clear();
 
-            float ox = width/2f, oy = height/2f;
-            float rx = bounds.x + panX + ox, ry = panY + oy + bounds.y;
-            float rw = bounds.width, rh = bounds.height;
-            rx = Mathf.clamp(rx, -rw + pad, Core.graphics.getWidth() - pad);
-            ry = Mathf.clamp(ry, -rh + pad, Core.graphics.getHeight() - pad);
-            panX = rx - bounds.x - ox;
-            panY = ry - bounds.y - oy;
-        }
+                table.image().growX().height(4f).pad(6f).color(Pal.gray).row();
+                for (LoadedArchive item : archive.list()) {
+                    table.row();
+//                    table.image().growX().height(4f).pad(6f).color(Pal.gray).row();
+                    table.table(Styles.flatBordert.up, t -> {
+                        t.top().left();
+                        t.margin(12f);
+                        t.defaults().left().top();
 
-        void rebuild(){
-            rebuild(null);
-        }
+                        t.table(title1 -> {
+                            title1.top().left();
+                            title1.defaults().left().top();
+                            title1.add("[accent]"+item.name()).row();
+                            title1.add("[lightgray]"+item.time());
+                        }).left().top();
 
-        //pass an array of stack indexes that should shine here
-        void rebuild(@Nullable boolean[] shine){
-            ImageButton button = hoverNode;
+                        t.table(right -> {
+                            right.right();
 
-            infoTable.remove();
-            infoTable.clear();
-            infoTable.update(null);
+                            right.image().growY().width(4f).color(Pal.gray);
 
-            if(button == null) return;
+                            right.table(right2 -> {
+                                //åŠ è½½å­˜æ¡£
+                                right2.button(Icon.play, Styles.clearNonei, ()->{
 
-            ArchiveNode node = (ArchiveNode)button.userObject;
+                                }).size(50f).disabled(false).get().addListener(new Tooltip(o -> {
+                                    o.background(Tex.button).add(Core.bundle.get("archives.play.tooltip"));
+                                }));
 
-            infoTable.exited(() -> {
-                if(hoverNode == button && !infoTable.hasMouse() && !hoverNode.hasMouse()){
-                    hoverNode = null;
-                    rebuild();
+                                //åˆ é™¤å­˜æ¡£
+                                right2.button(Icon.trash, Styles.clearNonei, ()->{
+
+                                }).size(50f).get().addListener(new Tooltip(o -> {
+                                    o.background(Tex.button).add(Core.bundle.get("archives.trash.tooltip"));
+                                }));
+
+                                //åˆ†ç•Œçº¿
+                                right2.row();
+
+                                //ä¸Šä¼ å­˜æ¡£(ç½‘ç»œ)
+                                right2.button(Icon.up, Styles.clearNonei, ()->{
+
+                                }).size(50f).get().addListener(new Tooltip(o -> {
+                                    o.background(Tex.button).add(Core.bundle.get("archives.up.tooltip"));
+                                }));
+
+                                //å­˜æ¡£è¯¦æƒ…
+                                right2.button(Icon.info, Styles.clearNonei, ()->{
+                                    showArchive(item);
+                                }).size(50f).get().addListener(new Tooltip(o -> {
+                                    o.background(Tex.button).add(Core.bundle.get("archives.info.tooltip"));
+                                }));
+                            }).padRight(-8f).padTop(-8f);
+                        }).growX().right();
+                    }).size(w, h).growX().pad(4f);//showArchive(item) Styles.flatBordert
                 }
-            });
-
-            infoTable.update(() -> infoTable.setPosition(button.x + button.getWidth(), button.y + button.getHeight(), Align.topLeft));
-
-            infoTable.left();
-            infoTable.background(Tex.button).margin(8f);
-
-            boolean selectable = selectable(node);
-
-            infoTable.table(b -> {
-                b.margin(0).left().defaults().left();
-
-                if(selectable){
-                    b.button(Icon.info, Styles.flati, () -> {
-                        node.dialog.show(node);
-                    }).growY().width(50f);
-                }
-                b.add().grow();
-                b.table(desc -> {
-                    desc.left().defaults().left();
-                    desc.add(selectable ? node.name : "[accent]???");
-                    desc.row();
-
-                }).pad(9);
-
-                //if(locked(node)){
-                b.row();
-
-                if (node.current) {
-                    b.button("@mods.viewcontent", Icon.zoom, new TextButtonStyle(){{
-                        disabled = Tex.button;
-                        font = Fonts.def;
-                        fontColor = Color.white;
-                        disabledFontColor = Color.gray;
-                        up = buttonOver;
-                        over = buttonDown;
-                    }}, () -> {
-
-                    }).disabled(i -> false).growX().height(44f).colspan(3);
-                } else {
-                    b.button("@save.import", Icon.download, new TextButtonStyle(){{
-                        disabled = Tex.button;
-                        font = Fonts.def;
-                        fontColor = Color.white;
-                        disabledFontColor = Color.gray;
-                        up = buttonOver;
-                        over = buttonDown;
-                    }}, () -> {
-                        //node.current = true;
-                        //ÔÚÕâÀïÐ´¼ÓÔØµÄÂß¼­
-                    }).disabled(i -> false).growX().height(44f).colspan(3);
-                }
-            });
-
-            infoTable.row();
-            if(node.description != null && selectable){
-                infoTable.table(t -> t.margin(3f).left().labelWrap(node.description).color(Color.lightGray).growX()).fillX();
-            }
-
-            addChild(infoTable);
-
-            infoTable.pack();
-            infoTable.act(Core.graphics.getDeltaTime());
+            }).scrollX(false).update(s -> scroll = s.getScrollY()).get().setScrollYForce(scroll);
+        }else{
+            cont.table(Styles.black6, t -> t.add("@archives.none")).height(80f);
         }
 
-        @Override
-        public void drawChildren(){
-            clamp();
-            float offsetX = panX + width / 2f, offsetY = panY + height / 2f;
-            Draw.sort(true);
+        cont.row();
+    }
 
-            for(TechTreeNode node : nodes.values()){
-                //if(!node.visible) continue;
-                for(TechTreeNode child : node.getChildren()){
-                    //if(!child.visible) continue;
-                    boolean current = current(node.node) || current(child.node);
-                    Draw.z(current ? 2f : 1f);
+    private @Nullable String getStateDetails(LoadedArchive item){
+        return "null";
+    }
 
-                    Lines.stroke(Scl.scl(4f), current ? Pal.accent : Pal.gray);
-                    Draw.alpha(parentAlpha);
-                    if(Mathf.equal(Math.abs(node.y - child.y), Math.abs(node.x - child.x), 1f) && Mathf.dstm(node.x, node.y, child.x, child.y) <= node.width*3){
-                        Lines.line(node.x + offsetX, node.y + offsetY, child.x + offsetX, child.y + offsetY);
-                    }else{
-                        Lines.line(node.x + offsetX, node.y + offsetY, child.x + offsetX, node.y + offsetY);
-                        Lines.line(child.x + offsetX, node.y + offsetY, child.x + offsetX, child.y + offsetY);
-                    }
-                }
-            }
+    public void showArchive(LoadedArchive archive){
+        BaseDialog dialog = new BaseDialog(archive.name());
 
-            Draw.sort(false);
-            Draw.reset();
-            super.drawChildren();
-        }
+        dialog.addCloseButton();
+
+        dialog.cont.pane(desc -> {
+            desc.center();
+            desc.defaults().padTop(10).left();
+
+            desc.add("@editor.name").padRight(10).color(Color.gray).padTop(0);
+            desc.row();
+            desc.add(archive.name()).growX().wrap().padTop(2);
+            desc.row();
+        }).width(400f);
+
+        dialog.show();
     }
 }
-

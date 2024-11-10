@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-/**简便设计的json操作工具*/
+/**绠�渚胯璁＄殑json鎿嶄綔宸ュ叿*/
 public class CRJson extends Fi{
 
     public CRJson(String fileName){
@@ -39,7 +39,7 @@ public class CRJson extends Fi{
         writeJson(toJson(objects));
     }
 
-    /**TODO aaaa，或者有错误的地方？*/
+    /**TODO aaaa锛屾垨鑰呮湁閿欒鐨勫湴鏂癸紵*/
     public <T> T toClassVar(Class<T> c){
         try {
             Field[] fs = c.getFields();

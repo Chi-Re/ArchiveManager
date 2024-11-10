@@ -9,7 +9,7 @@ import java.io.*;
 @Deprecated
 public class SaveClass {
 
-    /**仅支持Serializable*/
+    /**浠呮敮鎸丼erializable*/
     public static void write(Object obj, Fi file)
     {
         FileOutputStream out;
@@ -24,7 +24,7 @@ public class SaveClass {
         }
     }
 
-    /**仅支持Serializable*/
+    /**浠呮敮鎸丼erializable*/
     public static <T> T read(Class<T> tClass, Fi file) {
         T temp = null;
         FileInputStream in;

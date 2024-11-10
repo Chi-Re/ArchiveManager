@@ -33,7 +33,7 @@ ext{
 //java 8 backwards compatibility flag
 allprojects{
     tasks.withType(JavaCompile){
-        //options.encoding = "UTF-8"
+        options.encoding = "UTF-8"
         options.fork = true
         options.forkOptions.jvmArgs.addAll([
                 "--add-opens", "jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
