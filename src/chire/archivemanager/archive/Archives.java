@@ -21,29 +21,25 @@ import static mindustry.Vars.*;
 import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
-    /**
-     * key - 为时间字符串(不可修改，自动生成)
-     * value - LoadedArchive
-     */
-    private final ArrayMap<String, LoadedArchive> archives = new ArrayMap<>();
-
     public void load(){
         //Log.info(data.getMap("saveFiles", String.class, String.class));
         //Log.info(toTime(data.getString("time")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH mm:ss:SSS")));
 
-        for (var a : data.getList("archive-list", String.class)) {
-            String name = data.getString(a+"-name");
-            LocalDateTime time = toTime(data.getString(a+"-time"));
-            ArrayMap<String, String> saveFiles = data.getMap(a+"-saveFiles", String.class, String.class);
+        //for (var a : data.getList("archive-list", String.class)) {
+        //    String name = data.getString(a+"-name");
+        //    LocalDateTime time = toTime(data.getString(a+"-time"));
+        //    ArrayMap<String, String> saveFiles = data.getMap(a+"-saveFiles", String.class, String.class);
 
             //TODO 总觉得有些多余
-            archives.put(time.toString(), new LoadedArchive(name, time, saveFiles));
-        }
+        //    archives.put(time.toString(), new LoadedArchive(name, time, saveFiles));
+        //}
+        Log.info(data.getList("archive-list", String.class));
     }
 
     public void save(){
         LocalDateTime time = time();
-        String name = time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"));
+        String kay = time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+        String name = kay;//TODO 暂时这样
         Seq<Fi> files = getCopyFiles();
         ArrayMap<String, String> saveFiles = disposalFile(files);
 
@@ -57,19 +53,19 @@ public class Archives {
             }
         }
 
-        data.putObject(time +"-time", time.toString());
-        data.putObject(time +"-name", name);//TODO 提高拓展
-        data.putMap(time +"-saveFiles", saveFiles);
+        data.putObject(kay +"-time", time.toString());
+        data.putObject(kay +"-name", name);
+        data.putMap(kay +"-saveFiles", saveFiles);
         //archives.add(new LoadedArchive(time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")), saveFiles));
-        archives.put(time.toString(), new LoadedArchive(name, time, saveFiles));
+        //archives.put(time.toString(), new LoadedArchive(kay, time, saveFiles));
 
         if (data.has("archive-list")) {
             List<String> list = data.getList("archive-list", String.class);
-            list.add(time.toString());
+            list.add(kay);
             data.putList("archive-list", list);
         } else {
             List<String> list = new ArrayList<>();
-            list.add(time.toString());
+            list.add(kay);
             data.putList("archive-list", list);
         }
 
@@ -105,7 +101,16 @@ public class Archives {
     }
 
     public ArrayList<LoadedArchive> list(){
-        return archives.values().toArray().list();
+        //return archives.values().toArray().list();
+        // 应该可以提高兼容性
+        ArrayList<LoadedArchive> list = new ArrayList<>();
+        if (data.has("archive-list")) {
+            for (String a : data.getList("archive-list", String.class)) {
+                list.add(new LoadedArchive(a));
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -183,9 +188,5 @@ public class Archives {
 
     public LocalDateTime time(){
         return LocalDateTime.now();
-    }
-
-    public LocalDateTime toTime(String name) {
-        return LocalDateTime.parse(name);
     }
 }
