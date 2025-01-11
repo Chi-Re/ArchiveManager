@@ -1,12 +1,17 @@
 package chire.archivemanager;
 
 import arc.Core;
+import arc.Settings;
+import arc.files.Fi;
 import chire.archivemanager.archive.Archives;
+import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.ArchiveDialog;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.mod.Mod;
 import mindustry.ui.dialogs.SettingsMenuDialog;
+
+import java.io.IOException;
 
 public class ArchiveManager extends Mod {
     public static String modName;
@@ -15,9 +20,22 @@ public class ArchiveManager extends Mod {
 
     public static Archives archive;
 
+    public static Fi archiveDirectory = Vars.dataDirectory.child("archives");
+
+    public static DataFile data;
+
     @Override
     public void loadContent(){
         archive = new Archives();
+        data = new DataFile(archiveDirectory.child("setting.dat"));
+        if (data.getFile().exists()){
+            try {
+                data.loadValues();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            archive.load();
+        }
     }
 
     @Override

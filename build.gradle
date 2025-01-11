@@ -124,7 +124,7 @@ task testMod {
             from "$buildDir/libs/${project.archivesBaseName}Desktop.jar"
             into modPath
         }
-        def commandLine = "cmd /c start cmd.exe /c java -jar ${gamePath}"
+        def commandLine = "cmd /c start cmd.exe /c java -jar ${gamePath} --debug"
         commandLine.execute()
     }
 }

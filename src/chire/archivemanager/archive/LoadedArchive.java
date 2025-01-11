@@ -6,48 +6,43 @@ import arc.util.Log;
 import chire.archivemanager.io.DataFile;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /***/
 public class LoadedArchive {
-    private final Fi file;
-    private final DataFile data;
+    private String name;
+    private final LocalDateTime time;
+    private final ArrayMap<String, String> data;
 
     //Publishable, Disposable
-    public LoadedArchive(Fi file){
-        this.file = file;
-        this.data = new DataFile(file);
+    public LoadedArchive(String name, LocalDateTime time, ArrayMap<String, String> data){
+        this.name = name;
+        this.time = time;
+        this.data = data;
         load();
     }
 
     public void load() {
-        if (!file.exists() || file.isDirectory()) {
-            Log.err("存档"+ file.path()+"加载错误: 文件不存在");
-            return;
-        }
-        try {
-            this.data.loadValues();
-        } catch (IOException e){
-            Log.err("存档"+ file.path()+"加载错误", e);
-        }
-    }
 
-    public Fi file(){
-        return file;
     }
 
     public String name(){
-        return get("name", "None", String.class);
+        return this.name;
     }
 
     public String time(){
-        return get("time", "None", String.class);
+        if (time == null) return "null";
+        return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"));
     }
 
-    public <T> T get(String key, T def, Class<T> type){
-        return type.cast(data.get(key, def));
-    }
-
-    public <T> T get(String key, Class<T> type){
-        return this.get(key, null, type);
+    @Override
+    public String toString() {
+        return "LoadedArchive{" +
+                "name='" + name + '\'' +
+                ", time=" + time +
+                ", data=" + data +
+                '}';
     }
 }

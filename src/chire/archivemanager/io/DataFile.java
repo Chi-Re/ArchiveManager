@@ -3,6 +3,7 @@ package chire.archivemanager.io;
 import arc.files.Fi;
 import arc.func.Prov;
 import arc.struct.ArrayMap;
+import arc.util.Log;
 import arc.util.io.ReusableByteInStream;
 import arc.util.serialization.Json;
 import arc.util.serialization.UBJsonReader;
@@ -12,8 +13,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class DataFile {
@@ -82,6 +85,10 @@ public class DataFile {
         putClass(name, map.getClass(), map);
     }
 
+    public synchronized <V> void putList(String name, List<V> list){
+        putClass(name, list.getClass(), list);
+    }
+
     public synchronized boolean has(String name){
         return values.containsKey(name);
     }
@@ -112,6 +119,8 @@ public class DataFile {
             byteInputStream.setBytes(getBytes(name));
             return json.readValue(type, elementType, ureader.parse(byteInputStream));
         }catch(Throwable e){
+            Log.info("出现错误，关于getDataClass");
+            Log.info(e);
             return def.get();
         }
     }
@@ -124,15 +133,18 @@ public class DataFile {
         return getDataClass(name, type, ()-> null);
     }
 
-    public ArrayMap<?, ?> getMap(String name){
+    public <T, V> ArrayMap<T, V> getMap(String name, Class<T> c1, Class<V> c2){
         return getDataClass(name, ArrayMap.class, ArrayMap::new);
+    }
+
+    public <V> List<V> getList(String name, Class<V> c){
+        return getDataClass(name, List.class, null);
     }
 
     public synchronized void remove(String name){
         values.remove(name);
         modified = true;
     }
-
 
     public synchronized void saveValues(){
         try(DataOutputStream stream = new DataOutputStream(fi.write(false, 8192))){
