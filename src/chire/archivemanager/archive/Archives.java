@@ -33,7 +33,11 @@ public class Archives {
             //TODO 总觉得有些多余
         //    archives.put(time.toString(), new LoadedArchive(name, time, saveFiles));
         //}
-        Log.info(data.getList("archive-list", String.class));
+        List<String> list = data.getList("archive-list", String.class);
+        Log.info(list);
+//        for (var l : list) {
+//            Log.info(GameData.read(archiveDirectory.child(l+".dat")).get("itemStorage").getClass());
+//        }
     }
 
     public void save(){

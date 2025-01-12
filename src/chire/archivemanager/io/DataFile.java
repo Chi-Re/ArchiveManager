@@ -119,8 +119,8 @@ public class DataFile {
             byteInputStream.setBytes(getBytes(name));
             return json.readValue(type, elementType, ureader.parse(byteInputStream));
         }catch(Throwable e){
-            Log.info("出现错误，关于getDataClass");
-            Log.info(e);
+            Log.warn("出现错误，关于getDataClass");
+            Log.warn(e.toString());
             return def.get();
         }
     }
@@ -215,18 +215,5 @@ public class DataFile {
                 throw new IOException("Trailing settings data; expected EOF, but got: " + end);
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        return "DataFile{" +
-                "fi=" + fi +
-                ", ureader=" + ureader +
-                ", json=" + json +
-                ", byteStream=" + byteStream +
-                ", byteInputStream=" + byteInputStream +
-                ", values=" + values +
-                ", modified=" + modified +
-                '}';
     }
 }

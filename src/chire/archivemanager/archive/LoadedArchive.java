@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 import static chire.archivemanager.ArchiveManager.data;
 /***/
 public class LoadedArchive {
-    private String key;
+    private final String key;
 
     //Publishable, Disposable
     public LoadedArchive(String key){

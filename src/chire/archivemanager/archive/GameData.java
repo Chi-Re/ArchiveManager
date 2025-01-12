@@ -14,6 +14,7 @@ import mindustry.type.Sector;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 
 import static mindustry.Vars.content;
 
@@ -100,18 +101,18 @@ public class GameData implements Serializable {
         }
     }
 
-    public static void save(Fi file, GameData gd){
+    public void save(Fi file){
         DataFile dat = new DataFile(file);
 
-        //dat.putClass("itemStorage", ArrayMap.class, itemStorage);
-        //dat.putClass("sectors", Seq.class, sectors);
-        //dat.putClass("mods", Seq.class, mods);
-        dat.putClass("data", gd.getClass(), gd);
+//        dat.putClass("itemStorage", ArrayMap.class, itemStorage);
+//        dat.putClass("sectors", Seq.class, sectors);
+//        dat.putClass("mods", Seq.class, mods);
+        dat.putClass("data", this.getClass(), this);
 
         dat.saveValues();
     }
 
-    public static GameData read(Fi file){
+    public static HashMap<String, Object> read(Fi file){
         if (!file.exists()) throw new RuntimeException("正在读取的数据文件不存在！");
         DataFile dat = new DataFile(file);
         try {
@@ -119,7 +120,7 @@ public class GameData implements Serializable {
         } catch (IOException e){
             Vars.ui.showException(e);
         }
-        return dat.getDataClass("data", GameData.class);
+        return dat.getValues();
     }
 
     @Override

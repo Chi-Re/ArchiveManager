@@ -158,7 +158,7 @@ public class ArchiveDialog extends BaseDialog {
         cont.row();
     }
 
-    private @Nullable String getStateDetails(LoadedArchive item){
+    private String getStateDetails(LoadedArchive item){
         return "null";
     }
 
