@@ -40,6 +40,10 @@ public class LoadedArchive {
         return toTime(keyGet("time").toString()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"));
     }
 
+    public String key(){
+        return key;
+    }
+
     public boolean keyHas(String value){
         return data.has(this.key+"-"+value);
     }

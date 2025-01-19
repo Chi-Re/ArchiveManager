@@ -15,13 +15,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static arc.Core.settings;
 import static chire.archivemanager.ArchiveManager.archiveDirectory;
 import static chire.archivemanager.ArchiveManager.data;
 import static mindustry.Vars.*;
 import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
-    public void load(){
+    public void init(){
         //Log.info(data.getMap("saveFiles", String.class, String.class));
         //Log.info(toTime(data.getString("time")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH mm:ss:SSS")));
 
@@ -36,14 +37,53 @@ public class Archives {
         List<String> list = data.getList("archive-list", String.class);
         Log.info(list);
 //        for (var l : list) {
-//            Log.info(GameData.read(archiveDirectory.child(l+".dat")).get("itemStorage").getClass());
+//            Log.info(l);
+//            Log.info(data.getMap(l+"-saveFiles", String.class, String.class));
 //        }
     }
 
-    public void save(){
+    public void load(LoadedArchive loaded){
+        if ((!loaded.keyHas("saveFiles"))) {
+            ui.showErrorMessage("存档加载失败！你的saveFiles不存在，无法获取存档的数据。");
+            return;
+        }
+
+        //校验文件是否存在
+        ArrayMap<String, String> dataFiles = loaded.saveFiles();
+        for (var d : dataFiles){
+            Fi contentFi = archiveDirectory
+                    .child(d.value.substring(0, 2))
+                    .child(d.value.substring(2));
+
+            if (!contentFi.exists())  {
+                ui.showErrorMessage("存档文件加载失败！你存档"+loaded.key()+"的"+d.key+"不存在，存档数据损坏。");
+            }
+        }
+
+        //删除原数据
+        Seq<Fi> files = getCopyFiles();
+        for (var f : files) {
+            f.delete();
+        }
+
+        for (var d : dataFiles) {
+            archiveDirectory
+                    .child(d.value.substring(0, 2))
+                    .child(d.value.substring(2))
+                    .copyTo(dataDirectory.child(d.key));
+        }
+
+        settings.clear();
+        settings.load();
+    }
+
+    public void save(SaveConfig config){
         LocalDateTime time = time();
         String kay = time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        String name = kay;//TODO 暂时这样
+        String name = kay;
+        if (config.name != null && !config.name.equals("")) {
+            name = config.name;
+        }
         Seq<Fi> files = getCopyFiles();
         ArrayMap<String, String> saveFiles = disposalFile(files);
 
@@ -77,6 +117,7 @@ public class Archives {
     }
 
     public Seq<Fi> getCopyFiles(){
+        //TODO 之后添加可拓展存档文件的功能
         Seq<Fi> files = new Seq<>();
         files.add(Core.settings.getSettingsFile());
         files.addAll(customMapDirectory.list());

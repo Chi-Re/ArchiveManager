@@ -34,7 +34,7 @@ public class ArchiveManager extends Mod {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            archive.load();
+            archive.init();
         }
     }
 

@@ -55,9 +55,11 @@ public class ArchiveDialog extends BaseDialog {
             float margin = 12f;
 
             buttons.button("@archive.create", Icon.save, style, () -> {
-                archive.save();
-                setup();
-                ui.showInfo("@data.exported");//backup
+                SaveDialog saveDialog = new SaveDialog(this::show);
+                saveDialog.show();
+                hide();
+                //setup();
+                //ui.showInfo("@data.exported");//backup
             }).margin(margin);
 
             buttons.button("@archive.import", Icon.add, style, () -> {
@@ -118,7 +120,8 @@ public class ArchiveDialog extends BaseDialog {
                             right.table(right2 -> {
                                 //加载存档
                                 right2.button(Icon.play, Styles.clearNonei, ()->{
-
+                                    archive.load(item);
+                                    Core.app.exit();
                                 }).size(50f).disabled(false).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.play.tooltip"));
                                 }));

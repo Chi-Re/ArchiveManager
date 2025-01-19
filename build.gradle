@@ -43,7 +43,7 @@ allprojects{
                 "--add-opens", "jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
                 "--add-opens", "jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
         ])
-
+        //TODO 可能导致17的某些特性无法使用
         options.compilerArgs.addAll(['--release', '8'])
     }
 }
