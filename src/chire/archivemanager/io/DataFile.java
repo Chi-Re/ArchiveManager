@@ -14,10 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DataFile {
     protected Fi fi;
@@ -138,7 +135,7 @@ public class DataFile {
     }
 
     public <V> List<V> getList(String name, Class<V> c){
-        return getDataClass(name, List.class, null);
+        return getDataClass(name, List.class, ArrayList::new);
     }
 
     public synchronized void remove(String name){
