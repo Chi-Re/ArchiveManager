@@ -13,6 +13,7 @@ import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static arc.Core.settings;
@@ -23,23 +24,7 @@ import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
     public void init(){
-        //Log.info(data.getMap("saveFiles", String.class, String.class));
-        //Log.info(toTime(data.getString("time")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH mm:ss:SSS")));
-
-        //for (var a : data.getList("archive-list", String.class)) {
-        //    String name = data.getString(a+"-name");
-        //    LocalDateTime time = toTime(data.getString(a+"-time"));
-        //    ArrayMap<String, String> saveFiles = data.getMap(a+"-saveFiles", String.class, String.class);
-
-            //TODO 总觉得有些多余
-        //    archives.put(time.toString(), new LoadedArchive(name, time, saveFiles));
-        //}
-        List<String> list = data.getList("archive-list", String.class);
-        Log.info(list);
-//        for (var l : list) {
-//            Log.info(l);
-//            Log.info(data.getMap(l+"-saveFiles", String.class, String.class));
-//        }
+        Log.info(data.getList("archive-list", String.class));
     }
 
     public void load(LoadedArchive loaded){
@@ -57,6 +42,7 @@ public class Archives {
 
             if (!contentFi.exists())  {
                 ui.showErrorMessage("存档文件加载失败！你存档"+loaded.key()+"的"+d.key+"不存在，存档数据损坏。");
+                return;
             }
         }
 
@@ -73,8 +59,12 @@ public class Archives {
                     .copyTo(dataDirectory.child(d.key));
         }
 
+        data.putObject("archive-load", loaded.key());
+
         settings.clear();
         settings.load();
+
+        data.saveValues();
     }
 
     public void save(SaveConfig config){
@@ -100,8 +90,7 @@ public class Archives {
         data.putObject(kay +"-time", time.toString());
         data.putObject(kay +"-name", name);
         data.putMap(kay +"-saveFiles", saveFiles);
-        //archives.add(new LoadedArchive(time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS")), saveFiles));
-        //archives.put(time.toString(), new LoadedArchive(kay, time, saveFiles));
+        data.putObject("archive-load", kay);
 
         if (data.has("archive-list")) {
             List<String> list = data.getList("archive-list", String.class);
@@ -146,14 +135,15 @@ public class Archives {
     }
 
     public ArrayList<LoadedArchive> list(){
-        //return archives.values().toArray().list();
-        // 应该可以提高兼容性
         ArrayList<LoadedArchive> list = new ArrayList<>();
         if (data.has("archive-list")) {
             for (String a : data.getList("archive-list", String.class)) {
                 list.add(new LoadedArchive(a));
             }
         }
+
+        //使获取list中以时间由大到小排列(原来的是由小到大)
+        Collections.reverse(list);
 
         return list;
     }

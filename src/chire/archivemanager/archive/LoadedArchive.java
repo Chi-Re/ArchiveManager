@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import static chire.archivemanager.ArchiveManager.data;
 /***/
@@ -29,6 +30,11 @@ public class LoadedArchive {
 
     public String name(){
         return keyGet("name").toString();
+    }
+
+    /**上一个被加载的存档*/
+    public boolean last(){
+        return data.has("archive-load") && Objects.equals(data.getString("archive-load"), key());
     }
 
     public ArrayMap<String, String> saveFiles(){

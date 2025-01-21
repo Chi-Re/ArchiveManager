@@ -5,6 +5,7 @@ import arc.files.Fi;
 import arc.func.Cons;
 import arc.graphics.Color;
 import arc.graphics.g2d.TextureRegion;
+import arc.scene.style.Drawable;
 import arc.scene.ui.TextButton;
 import arc.scene.ui.Tooltip;
 import arc.scene.ui.layout.Scl;
@@ -100,7 +101,11 @@ public class ArchiveDialog extends BaseDialog {
                 for (LoadedArchive item : archive.list()) {
                     table.row();
 //                    table.image().growX().height(4f).pad(6f).color(Pal.gray).row();
-                    table.table(Styles.flatBordert.up, t -> {
+                    Drawable background = Styles.flatBordert.up;
+                    if (item.last()) {
+                        background = Styles.flatBordert.over;
+                    }
+                    table.table(background, t -> {
                         t.top().left();
                         t.margin(12f);
                         t.defaults().left().top();
@@ -121,7 +126,8 @@ public class ArchiveDialog extends BaseDialog {
                                 //加载存档
                                 right2.button(Icon.play, Styles.clearNonei, ()->{
                                     archive.load(item);
-                                    Core.app.exit();
+                                    setup();
+                                    reload();
                                 }).size(50f).disabled(false).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.play.tooltip"));
                                 }));
@@ -163,6 +169,13 @@ public class ArchiveDialog extends BaseDialog {
 
     private String getStateDetails(LoadedArchive item){
         return "null";
+    }
+
+    private void reload(){
+        ui.showInfoOnHidden("@archives.reloadexit", () -> {
+            Log.info("Exiting to reload archives.");
+            Core.app.exit();
+        });
     }
 
     public void showArchive(LoadedArchive archive){
