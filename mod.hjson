@@ -1,4 +1,4 @@
-displayName: "存档管理器"
+displayName: "ArchiveManager"
 name: "archive-manager"
 author: "炽热S"
 main: "chire.archivemanager.ArchiveManager"

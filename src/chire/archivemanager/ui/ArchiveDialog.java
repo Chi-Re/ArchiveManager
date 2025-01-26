@@ -18,6 +18,7 @@ import arc.util.Strings;
 import chire.archivemanager.archive.Archives;
 import chire.archivemanager.archive.LoadedArchive;
 import chire.archivemanager.io.DataFile;
+import mindustry.game.MapObjectives;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
@@ -29,6 +30,7 @@ import mindustry.ui.dialogs.BaseDialog;
 import java.io.IOException;
 
 import static chire.archivemanager.ArchiveManager.archive;
+import static chire.archivemanager.ArchiveManager.infoDialog;
 import static mindustry.Vars.*;
 import static mindustry.Vars.mobile;
 
@@ -59,33 +61,10 @@ public class ArchiveDialog extends BaseDialog {
                 SaveDialog saveDialog = new SaveDialog(this::show);
                 saveDialog.show();
                 hide();
-                //setup();
-                //ui.showInfo("@data.exported");//backup
             }).margin(margin);
 
             buttons.button("@archive.import", Icon.add, style, () -> {
 
-            }).margin(margin);
-
-            buttons.button("??????", ()->{
-                platform.showFileChooser(true, "dat", file -> {
-                    try {
-                        var a = new DataFile(file);
-                        a.loadValues();
-                        ui.showErrorMessage(a.getObject("name") + "," + a.getObject("time"));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        ui.showException("@save.import.fail", e);
-                    }
-                });
-
-//                var a = new DataFile(SaveArchive.archiveDirectory.child("202409151846").child("current.dat"));
-//                try {
-//                    a.loadValues();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                Log.info(a.getDataClass("same", ArrayMap.class));
             }).margin(margin);
         }).width(w);
 
@@ -114,7 +93,7 @@ public class ArchiveDialog extends BaseDialog {
                             title1.top().left();
                             title1.defaults().left().top();
                             title1.add("[accent]"+item.name()).row();
-                            title1.add("[lightgray]"+item.time());
+                            title1.add("[lightgray]"+item.parseTime());
                         }).left().top();
 
                         t.table(right -> {
@@ -134,7 +113,8 @@ public class ArchiveDialog extends BaseDialog {
 
                                 //删除存档
                                 right2.button(Icon.trash, Styles.clearNonei, ()->{
-
+                                    archive.delete(item);
+                                    setup();
                                 }).size(50f).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.trash.tooltip"));
                                 }));
@@ -151,7 +131,7 @@ public class ArchiveDialog extends BaseDialog {
 
                                 //存档详情
                                 right2.button(Icon.info, Styles.clearNonei, ()->{
-                                    showArchive(item);
+                                    infoDialog.show(item);
                                 }).size(50f).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.info.tooltip"));
                                 }));

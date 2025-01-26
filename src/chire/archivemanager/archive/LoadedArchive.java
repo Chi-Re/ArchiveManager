@@ -11,8 +11,11 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import static chire.archivemanager.ArchiveManager.archiveDirectory;
 import static chire.archivemanager.ArchiveManager.data;
 /***/
 public class LoadedArchive {
@@ -32,7 +35,7 @@ public class LoadedArchive {
         return keyGet("name").toString();
     }
 
-    /**上一个被加载的存档*/
+    /**是否为上一个被加载的存档*/
     public boolean last(){
         return data.has("archive-load") && Objects.equals(data.getString("archive-load"), key());
     }
@@ -41,7 +44,37 @@ public class LoadedArchive {
         return data.getMap(this.key+"-saveFiles", String.class, String.class);
     }
 
-    public String time(){
+    public void putSaveFiles(ArrayMap<String, String> fileMap){
+        data.putMap(this.key+"-saveFiles", fileMap);
+    }
+
+    public void putSaveFiles(String key, String value) {
+        ArrayMap<String, String> sfs = this.saveFiles();
+        sfs.put(key, value);
+        putSaveFiles(sfs);
+    }
+
+    public void delete() {
+        List<String> aList = data.getList("archive-list", String.class);
+
+        data.remove(this.key + "-time");
+        data.remove(this.key + "-name");
+        data.remove(this.key + "-saveFiles");
+        if (last()) data.remove("archive-load");
+
+        if (aList.contains(this.key)) aList.remove(this.key);
+
+        data.putList("archive-list", aList);
+
+        data.saveValues();
+    }
+
+    public @Nullable LocalDateTime time(){
+        if (!keyHas("time")) return null;
+        return toTime(keyGet("time").toString());
+    }
+
+    public String parseTime(){
         if (!keyHas("time")) return "null";
         return toTime(keyGet("time").toString()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss:SSS"));
     }

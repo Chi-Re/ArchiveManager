@@ -6,6 +6,7 @@ import arc.files.Fi;
 import chire.archivemanager.archive.Archives;
 import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.ArchiveDialog;
+import chire.archivemanager.ui.ArchiveInfoDialog;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.mod.Mod;
@@ -17,6 +18,8 @@ public class ArchiveManager extends Mod {
     public static String modName;
 
     public static ArchiveDialog archiveDialog;
+
+    public static ArchiveInfoDialog infoDialog;
 
     public static Archives archive;
 
@@ -41,6 +44,8 @@ public class ArchiveManager extends Mod {
     @Override
     public void init() {
         modName = Vars.mods.getMod(ArchiveManager.class).name;
+
+        infoDialog = new ArchiveInfoDialog();
 
         archiveDialog = new ArchiveDialog();
 

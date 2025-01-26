@@ -139,6 +139,7 @@ public class DataFile {
     }
 
     public synchronized void remove(String name){
+        if (!has(name)) return;
         values.remove(name);
         modified = true;
     }

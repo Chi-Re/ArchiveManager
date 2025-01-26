@@ -4,9 +4,11 @@ import arc.Core;
 import arc.files.Fi;
 import arc.struct.ArrayMap;
 import arc.struct.Seq;
+import arc.util.ArcRuntimeException;
 import arc.util.Log;
 import chire.archivemanager.ArchiveManager;
 
+import javax.annotation.processing.FilerException;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -24,7 +26,16 @@ import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
     public void init(){
-        Log.info(data.getList("archive-list", String.class));
+        //Log.info(data.getList("archive-list", String.class));
+        //Log.info(data.getMap("archive-file-length", String.class, Integer.class));
+        ArrayMap<String, Integer> fl = data.getMap("archive-file-length", String.class, Integer.class);
+
+        for (var key : data.getList("archive-list", String.class)) {
+            Log.info(key);
+            for (var c : data.getMap(key +"-saveFiles", String.class, String.class)) {
+                Log.info(c.key+"="+c.value+": "+fl.get(c.value));
+            }
+        }
     }
 
     public void load(LoadedArchive loaded){
@@ -69,10 +80,15 @@ public class Archives {
 
     public void save(SaveConfig config){
         LocalDateTime time = time();
-        String kay = time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
-        String name = kay;
+        String key = time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
+        String name = key;
         if (config.name != null && !config.name.equals("")) {
             name = config.name;
+        }
+        ArrayMap<String, Integer> newFileLength = new ArrayMap<>();
+        ArrayMap<String, Integer> fileLength = new ArrayMap<>();
+        if (data.has("archive-file-length")) {
+            fileLength = data.getMap("archive-file-length", String.class, Integer.class);
         }
         Seq<Fi> files = getCopyFiles();
         ArrayMap<String, String> saveFiles = disposalFile(files);
@@ -85,24 +101,68 @@ public class Archives {
             if (!contentFi.exists()) {
                 dataDirectory.child(f.key).copyTo(contentFi);
             }
+
+            if (fileLength.containsKey(f.value)) {
+                int fl = fileLength.get(f.value);
+                fl ++;
+                newFileLength.put(f.value, fl);
+                fileLength.removeKey(f.value);
+            } else {
+                newFileLength.put(f.value, 1);
+            }
         }
 
-        data.putObject(kay +"-time", time.toString());
-        data.putObject(kay +"-name", name);
-        data.putMap(kay +"-saveFiles", saveFiles);
-        data.putObject("archive-load", kay);
+        if (fileLength.size != 0) {
+            for (var flk : fileLength) {
+                int fl = fileLength.get(flk.key);
+                fl --;
+                newFileLength.put(flk.key, fl);
+                fileLength.removeKey(flk.key);
+            }
+        }
+
+        data.putObject(key +"-time", time.toString());
+        data.putObject(key +"-name", name);
+        data.putMap(key +"-saveFiles", saveFiles);
+        data.putObject("archive-load", key);
 
         if (data.has("archive-list")) {
             List<String> list = data.getList("archive-list", String.class);
-            list.add(kay);
+            list.add(key);
             data.putList("archive-list", list);
         } else {
             List<String> list = new ArrayList<>();
-            list.add(kay);
+            list.add(key);
             data.putList("archive-list", list);
         }
+        data.putMap("archive-file-length", newFileLength);
 
         ArchiveManager.data.saveValues();
+    }
+
+    public void delete(LoadedArchive archive) {
+        ArrayMap<String, Integer> saveFilesLength = data.getMap("archive-file-length", String.class, Integer.class);
+
+        for (var save : archive.saveFiles()) {
+            int saveLength = saveFilesLength.get(save.value);
+            if (saveLength <= 1) {
+                Fi saveFi = archiveDirectory
+                        .child(save.value.substring(0, 2))
+                        .child(save.value.substring(2));
+                if (saveFi.exists()) {
+                    saveFi.delete();
+                }
+                saveFilesLength.removeKey(save.value);
+            } else {
+                saveLength --;
+                saveFilesLength.put(save.value, saveLength);
+            }
+        }
+
+        data.putMap("archive-file-length", saveFilesLength);
+        //delete时data就会保存一次
+        archive.delete();
+        data.saveValues();
     }
 
     public Seq<Fi> getCopyFiles(){
