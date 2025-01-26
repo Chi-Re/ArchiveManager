@@ -119,8 +119,10 @@ public class ArchiveDialog extends BaseDialog {
 
                                 //删除存档
                                 right2.button(Icon.trash, Styles.clearNonei, ()->{
-                                    archive.delete(item);
-                                    setup();
+                                    ui.showInfoOnHidden("你确定要删除吗?", ()->{
+                                        archive.delete(item);
+                                        setup();
+                                    });
                                 }).size(50f).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.trash.tooltip"));
                                 }));
