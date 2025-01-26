@@ -104,9 +104,15 @@ public class ArchiveDialog extends BaseDialog {
                             right.table(right2 -> {
                                 //加载存档
                                 right2.button(Icon.play, Styles.clearNonei, ()->{
-                                    archive.load(item);
-                                    setup();
-                                    reload();
+                                    try {
+                                        archive.load(item);
+                                        setup();
+                                        reload();
+                                    } catch (Exception ex) {
+                                        Log.warn("存档加载错误！");
+                                        Log.warn(ex.toString());
+                                        ui.showException("存档加载时出现错误！", ex);
+                                    }
                                 }).size(50f).disabled(false).get().addListener(new Tooltip(o -> {
                                     o.background(Tex.button).add(Core.bundle.get("archives.play.tooltip"));
                                 }));

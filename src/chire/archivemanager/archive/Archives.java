@@ -38,7 +38,7 @@ public class Archives {
         }
     }
 
-    public void load(LoadedArchive loaded){
+    public void load(LoadedArchive loaded) throws Exception{
         if ((!loaded.keyHas("saveFiles"))) {
             ui.showErrorMessage("存档加载失败！你的saveFiles不存在，无法获取存档的数据。");
             return;
@@ -78,7 +78,7 @@ public class Archives {
         data.saveValues();
     }
 
-    public void save(SaveConfig config){
+    public void save(SaveConfig config) throws Exception{
         LocalDateTime time = time();
         String key = time.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
         String name = key;

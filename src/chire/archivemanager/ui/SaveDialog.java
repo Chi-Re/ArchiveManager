@@ -8,12 +8,11 @@ import mindustry.ui.dialogs.BaseDialog;
 
 import static chire.archivemanager.ArchiveManager.archive;
 import static chire.archivemanager.ArchiveManager.archiveDialog;
+import static mindustry.Vars.ui;
 
 public class SaveDialog extends BaseDialog {
     /**方便存档后打开一些东西*/
     private Runnable hideRunnable;
-
-    private SaveConfig config = new SaveConfig();
 
     public SaveDialog(Runnable hideRunnable) {
         super("@archive.save");
@@ -29,6 +28,7 @@ public class SaveDialog extends BaseDialog {
     }
 
     public void setup(){
+        SaveConfig config = new SaveConfig();
         cont.clear();
 
         final TextField[] name = new TextField[1];
@@ -43,14 +43,16 @@ public class SaveDialog extends BaseDialog {
 
         buttons.button("@cancel", this::hide).size(width, 64.0F);
         buttons.button("@archive.create", () -> {
-            config.name = name[0].getText();
-            archive.save(config);
-            hide();
+            try {
+                config.name = name[0].getText();
+                archive.save(config);
+                hide();
+            } catch (Exception e) {
+                Log.warn("存档保存错误！");
+                Log.warn(e.toString());
+                ui.showException("存档保存时出现错误！", e);
+            }
         }).size(width, 64.0F);
-    }
-
-    public SaveConfig getConfig(){
-        return config;
     }
 
     @Override
