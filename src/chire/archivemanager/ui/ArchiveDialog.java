@@ -71,8 +71,8 @@ public class ArchiveDialog extends BaseDialog {
         cont.row();
 
         if(!archive.list().isEmpty()){
-            cont.pane(e -> {
-                Table table = e.margin(10f).top();
+            cont.pane(c -> {
+                Table table = c.margin(10f).top();
 
                 table.clear();
 
@@ -124,17 +124,35 @@ public class ArchiveDialog extends BaseDialog {
                                         setup();
                                     });
                                 }).size(50f).get().addListener(new Tooltip(o -> {
-                                    o.background(Tex.button).add(Core.bundle.get("archives.trash.tooltip"));
+                                    o.background(Tex.button).add(Core.bundle.get("archives.delete.tooltip"));
                                 }));
 
                                 //分界线
                                 right2.row();
 
-                                //上传存档(网络)
-                                right2.button(Icon.up, Styles.clearNonei, ()->{
-
+                                //导出存档
+                                right2.button(Icon.upload, Styles.clearNonei, ()->{
+                                    if(ios){
+                                        Fi file = Core.files.local("mindustry-data-export.zip");
+                                        try{
+                                            archive.export(item, file);
+                                        }catch(Exception e){
+                                            ui.showException(e);
+                                        }
+                                        platform.shareFile(file);
+                                    }else{
+                                        platform.showFileChooser(false, "zip", file -> {
+                                            try{
+                                                archive.export(item, file);
+                                                ui.showInfo("@data.exported");
+                                            }catch(Exception e){
+                                                e.printStackTrace();
+                                                ui.showException(e);
+                                            }
+                                        });
+                                    }
                                 }).size(50f).get().addListener(new Tooltip(o -> {
-                                    o.background(Tex.button).add(Core.bundle.get("archives.up.tooltip"));
+                                    o.background(Tex.button).add(Core.bundle.get("archives.export.tooltip"));
                                 }));
 
                                 //存档详情

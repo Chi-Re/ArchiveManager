@@ -6,10 +6,13 @@ import arc.struct.ArrayMap;
 import arc.struct.Seq;
 import arc.util.ArcRuntimeException;
 import arc.util.Log;
+import arc.util.io.Streams;
 import chire.archivemanager.ArchiveManager;
 
 import javax.annotation.processing.FilerException;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
@@ -17,6 +20,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static arc.Core.settings;
 import static chire.archivemanager.ArchiveManager.archiveDirectory;
@@ -26,16 +31,7 @@ import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
     public void init(){
-        //Log.info(data.getList("archive-list", String.class));
-        //Log.info(data.getMap("archive-file-length", String.class, Integer.class));
-        ArrayMap<String, Integer> fl = data.getMap("archive-file-length", String.class, Integer.class);
 
-        for (var key : data.getList("archive-list", String.class)) {
-            Log.info(key);
-            for (var c : data.getMap(key +"-saveFiles", String.class, String.class)) {
-                Log.info(c.key+"="+c.value+": "+fl.get(c.value));
-            }
-        }
     }
 
     public void load(LoadedArchive loaded) throws Exception{
@@ -163,6 +159,25 @@ public class Archives {
         //delete时data就会保存一次
         archive.delete();
         data.saveValues();
+    }
+
+    public void export(LoadedArchive archive, Fi exportFi) throws IOException {
+        ArrayMap<String, String> files = archive.saveFiles();
+
+        try(OutputStream fos = exportFi.write(false, 2048); ZipOutputStream zos = new ZipOutputStream(fos)){
+            for(var add : files){
+                String path = add.key;
+                path = path.startsWith("/") ? path.substring(1) : path;
+                zos.putNextEntry(new ZipEntry(path));
+                Fi file = archiveDirectory
+                        .child(add.value.substring(0, 2))
+                        .child(add.value.substring(2));
+                if(!file.isDirectory()){
+                    Streams.copy(file.read(), zos);
+                }
+                zos.closeEntry();
+            }
+        }
     }
 
     public Seq<Fi> getCopyFiles(){
