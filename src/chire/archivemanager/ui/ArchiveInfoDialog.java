@@ -31,14 +31,14 @@ public class ArchiveInfoDialog extends BaseDialog {
 
         table.row();
 
-        table.add("@editor.name").color(Pal.accent).fillX().padTop(10);
+        table.add("@archives.info.name").color(Pal.accent).fillX().padTop(10);
         table.row();
 
         table.add("[lightgray]" + archive.name()).wrap().fillX().padLeft(10).width(500f).padTop(0).left();
         table.row();
 
         if (archive.time() != null){
-            table.add("@editor.time").color(Pal.accent).fillX().padTop(10);
+            table.add("@archives.info.time").color(Pal.accent).fillX().padTop(10);
             table.row();
 
             table.add("[lightgray]" + archive.parseTime()).wrap().fillX().padLeft(10).width(500f).padTop(0).left();

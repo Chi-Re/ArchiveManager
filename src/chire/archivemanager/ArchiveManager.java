@@ -3,6 +3,7 @@ package chire.archivemanager;
 import arc.Core;
 import arc.Settings;
 import arc.files.Fi;
+import arc.util.Log;
 import chire.archivemanager.archive.Archives;
 import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.ArchiveDialog;

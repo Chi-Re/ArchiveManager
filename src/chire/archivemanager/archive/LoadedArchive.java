@@ -40,6 +40,14 @@ public class LoadedArchive {
         return data.has("archive-load") && Objects.equals(data.getString("archive-load"), key());
     }
 
+    public boolean arc(){
+        return keyHas("arc") && (boolean) keyGet("arc");
+    }
+
+    public String gameVersion(){
+        return keyHas("game-version") ? keyGet("game-version").toString() : "null";
+    }
+
     public ArrayMap<String, String> saveFiles(){
         return data.getMap(this.key+"-saveFiles", String.class, String.class);
     }
@@ -60,6 +68,8 @@ public class LoadedArchive {
         data.remove(this.key + "-time");
         data.remove(this.key + "-name");
         data.remove(this.key + "-saveFiles");
+        data.remove(this.key + "-arc");
+        data.remove(this.key + "-game-version");
         if (last()) data.remove("archive-load");
 
         if (aList.contains(this.key)) aList.remove(this.key);

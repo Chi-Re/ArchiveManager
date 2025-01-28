@@ -29,8 +29,7 @@ import mindustry.ui.dialogs.BaseDialog;
 
 import java.io.IOException;
 
-import static chire.archivemanager.ArchiveManager.archive;
-import static chire.archivemanager.ArchiveManager.infoDialog;
+import static chire.archivemanager.ArchiveManager.*;
 import static mindustry.Vars.*;
 import static mindustry.Vars.mobile;
 
@@ -93,8 +92,12 @@ public class ArchiveDialog extends BaseDialog {
                             title1.top().left();
                             title1.defaults().left().top();
                             title1.add("[accent]"+item.name()).row();
-                            title1.add("[lightgray]"+item.parseTime());
-                        }).left().top();
+                            title1.add(getBundle("archives.info.time")+":[lightgray]"+item.parseTime()).row();
+                            title1.add(getBundle("archives.info.arc")+":"+
+                                    (item.arc() ? "[lightgray]学术端" : "[lightgray]原版") + " | " + item.gameVersion()
+                            ).row();
+                            if (item.last()) title1.add("[green]已加载");
+                        }).left().top();//定制
 
                         t.table(right -> {
                             right.right();

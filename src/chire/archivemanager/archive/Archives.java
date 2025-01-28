@@ -8,6 +8,7 @@ import arc.util.ArcRuntimeException;
 import arc.util.Log;
 import arc.util.io.Streams;
 import chire.archivemanager.ArchiveManager;
+import mindustry.core.Version;
 
 import javax.annotation.processing.FilerException;
 import java.io.ByteArrayInputStream;
@@ -56,7 +57,7 @@ public class Archives {
         //删除原数据
         Seq<Fi> files = getCopyFiles();
         for (var f : files) {
-            f.delete();
+            if (f.exists()) f.delete();
         }
 
         for (var d : dataFiles) {
@@ -121,6 +122,8 @@ public class Archives {
         data.putObject(key +"-name", name);
         data.putMap(key +"-saveFiles", saveFiles);
         data.putObject("archive-load", key);
+        data.putObject(key+"-arc", isARC());
+        data.putObject(key + "-game-version", Version.buildString());
 
         if (data.has("archive-list")) {
             List<String> list = data.getList("archive-list", String.class);
@@ -298,5 +301,14 @@ public class Archives {
 
     public LocalDateTime time(){
         return LocalDateTime.now();
+    }
+
+    public boolean isARC(){
+        try {
+            Class.forName("mindustry.arcModule.ARCVars");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
