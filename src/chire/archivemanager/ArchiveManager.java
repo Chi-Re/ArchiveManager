@@ -30,16 +30,6 @@ public class ArchiveManager extends Mod {
 
     @Override
     public void loadContent(){
-        archive = new Archives();
-        data = new DataFile(archiveDirectory.child("setting.dat"));
-        if (data.getFile().exists()){
-            try {
-                data.loadValues();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            archive.init();
-        }
     }
 
     @Override
@@ -62,6 +52,18 @@ public class ArchiveManager extends Mod {
 //                    }
 //                });
 //            });
+        }
+
+        //====================loadContent=======================
+        archive = new Archives();
+        data = new DataFile(archiveDirectory.child("setting.dat"));
+        if (data.getFile().exists()){
+            try {
+                data.loadValues();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            archive.init();
         }
     }
 

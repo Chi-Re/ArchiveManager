@@ -97,7 +97,7 @@ public class ArchiveDialog extends BaseDialog {
                                     (item.arc() ? "[lightgray]学术端" : "[lightgray]原版") + " | " + item.gameVersion()
                             ).row();
                             if (item.last()) title1.add("[green]已加载");
-                        }).left().top();//定制
+                        }).left().top();
 
                         t.table(right -> {
                             right.right();

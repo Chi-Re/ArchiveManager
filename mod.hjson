@@ -5,4 +5,5 @@ main: "chire.archivemanager.ArchiveManager"
 description: "更好的操作存档，更方便的存档管理。"
 version: 1.0.0
 minGameVersion: 136
+hidden: true
 java: true
