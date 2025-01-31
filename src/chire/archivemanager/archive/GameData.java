@@ -19,20 +19,10 @@ import java.util.HashMap;
 import static mindustry.Vars.content;
 
 /**关于玩家游戏的资源,地图,模组等进度数据*/
-public class GameData implements Serializable {
-    /**存档的资源数量*/
-    public ArrayMap<Item, Integer> itemStorage = new ArrayMap<>();
-    /**存档的占领地图*/
-    public Seq<Sector> sectors = new Seq<>();
-    /**存档的模组数量*/
-    public Seq<Mods.LoadedMod> mods = new Seq<>();
+public class GameData {
 
-    public GameData(){
-        this.init();
-    }
-
-    public void init(){
-        //初始化itemStorage
+    public static ArrayMap<String, Integer> itemStorage(){
+        ArrayMap<String, Integer> itemStorage = new ArrayMap<>();
         var items = new ItemSeq(){
             //store sector item amounts for modifications
             ObjectMap<Sector, ItemSeq> cache = new ObjectMap<>();
@@ -88,47 +78,20 @@ public class GameData implements Serializable {
         for(Item item : content.items()) {
             if (!items.has(item)) continue;
 
-            itemStorage.put(item, items.get(item));
+            itemStorage.put(item.name, items.get(item));
         }
 
-        //初始化sectors
-        sectors = Vars.ui.planet.state.planet.sectors.select(Sector::hasBase);
-
-        //初始化mods
-        for (var item : Vars.mods.list()) {
-            //item.isSupported() && !item.hasUnmetDependencies() && !item.hasContentErrors() && item.enabled()
-            mods.add(item);
-        }
+        return itemStorage;
     }
 
-    public void save(Fi file){
-        DataFile dat = new DataFile(file);
-
-//        dat.putClass("itemStorage", ArrayMap.class, itemStorage);
-//        dat.putClass("sectors", Seq.class, sectors);
-//        dat.putClass("mods", Seq.class, mods);
-        dat.putClass("data", this.getClass(), this);
-
-        dat.saveValues();
-    }
-
-    public static HashMap<String, Object> read(Fi file){
-        if (!file.exists()) throw new RuntimeException("正在读取的数据文件不存在！");
-        DataFile dat = new DataFile(file);
-        try {
-            dat.loadValues();
-        } catch (IOException e){
-            Vars.ui.showException(e);
-        }
-        return dat.getValues();
-    }
-
-    @Override
-    public String toString() {
-        return "GameData{" +
-                "itemStorage:" + itemStorage +
-                ", sectors=" + sectors +
-                ", mods=" + mods +
-                '}';
-    }
+//    public void init(){
+//        //初始化sectors
+//        sectors = Vars.ui.planet.state.planet.sectors.select(Sector::hasBase);
+//
+//        //初始化mods
+//        for (var item : Vars.mods.list()) {
+//            //item.isSupported() && !item.hasUnmetDependencies() && !item.hasContentErrors() && item.enabled()
+//            mods.add(item);
+//        }
+//    }
 }

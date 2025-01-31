@@ -48,6 +48,10 @@ public class LoadedArchive {
         return keyHas("game-version") ? keyGet("game-version").toString() : "null";
     }
 
+    public ArrayMap<String, Integer> itemStorage(){
+        return keyHas("game-items") ? data.getMap(this.key + "-game-items", String.class, Integer.class) : new ArrayMap<>();
+    }
+
     public ArrayMap<String, String> saveFiles(){
         return data.getMap(this.key+"-saveFiles", String.class, String.class);
     }

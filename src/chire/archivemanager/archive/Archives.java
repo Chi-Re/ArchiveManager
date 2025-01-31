@@ -32,7 +32,14 @@ import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
     public void init(){
+        ArrayMap<String, Integer> fl = data.getMap("archive-file-length", String.class, Integer.class);
 
+        for (var key : data.getList("archive-list", String.class)) {
+            Log.info(key);
+            for (var c : data.getMap(key +"-saveFiles", String.class, String.class)) {
+                Log.info(c.key+"="+c.value+": "+fl.get(c.value));
+            }
+        }
     }
 
     public void load(LoadedArchive loaded) throws Exception{
@@ -97,6 +104,7 @@ public class Archives {
 
             if (!contentFi.exists()) {
                 dataDirectory.child(f.key).copyTo(contentFi);
+                newFileLength.put(f.value, 1);
             }
 
             if (fileLength.containsKey(f.value)) {
@@ -124,6 +132,8 @@ public class Archives {
         data.putObject("archive-load", key);
         data.putObject(key+"-arc", isARC());
         data.putObject(key + "-game-version", Version.buildString());
+        //保存关于游戏数据
+        putGameData(key, saveFiles);
 
         if (data.has("archive-list")) {
             List<String> list = data.getList("archive-list", String.class);
@@ -136,7 +146,12 @@ public class Archives {
         }
         data.putMap("archive-file-length", newFileLength);
 
-        ArchiveManager.data.saveValues();
+        data.saveValues();
+    }
+
+    private void putGameData(String key, ArrayMap<String, String> saveFiles){
+        data.putMap(key+"-game-items", GameData.itemStorage());
+
     }
 
     public void delete(LoadedArchive archive) {
