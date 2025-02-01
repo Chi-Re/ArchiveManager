@@ -74,6 +74,7 @@ public class LoadedArchive {
         data.remove(this.key + "-saveFiles");
         data.remove(this.key + "-arc");
         data.remove(this.key + "-game-version");
+        data.remove(this.key + "-game-items");
         if (last()) data.remove("archive-load");
 
         if (aList.contains(this.key)) aList.remove(this.key);
