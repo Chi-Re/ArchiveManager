@@ -80,6 +80,8 @@ public class ArchiveInfoDialog extends BaseDialog {
     }
 
     public static class ItemStorageDialog extends BaseDialog{
+        private boolean lack = true;
+
         public ItemStorageDialog() {
             super("");
         }
@@ -92,6 +94,9 @@ public class ArchiveInfoDialog extends BaseDialog {
 
             addCloseButton();
 
+            cont.add("@archives.lack").visible(lackMod()).center().get().setAlignment(Align.center);
+            cont.row();
+
             cont.table(t -> {
                 t.pane(p -> {
                     p.margin(13f);
@@ -103,6 +108,7 @@ public class ArchiveInfoDialog extends BaseDialog {
                             if (content.item(item.key) != null) {
                                 addStat(stats, content.item(item.key).uiIcon, item.value);
                             } else {
+                                lack = false;
                                 addStat(stats, item.key, item.value);
                             }
                         }
@@ -111,6 +117,10 @@ public class ArchiveInfoDialog extends BaseDialog {
             }).center().minWidth(370).maxSize(600, 550).grow();
 
             show();
+        }
+
+        public boolean lackMod(){
+            return lack;
         }
 
         public void addStat(Table parent, TextureRegion icon, Integer storage) {
