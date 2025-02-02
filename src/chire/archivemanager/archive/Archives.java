@@ -89,7 +89,6 @@ public class Archives {
         if (config.name != null && !config.name.equals("")) {
             name = config.name;
         }
-        ArrayMap<String, Integer> newFileLength = new ArrayMap<>();
         ArrayMap<String, Integer> fileLength = new ArrayMap<>();
         if (data.has("archive-file-length")) {
             fileLength = data.getMap("archive-file-length", String.class, Integer.class);
@@ -97,34 +96,18 @@ public class Archives {
         Seq<Fi> files = getCopyFiles();
         ArrayMap<String, String> saveFiles = disposalFile(files);
 
-        for (var f : saveFiles) {
-            Fi contentFi = archiveDirectory
-                    .child(f.value.substring(0, 2))
-                    .child(f.value.substring(2));
-
-            if (!contentFi.exists()) {
-                dataDirectory.child(f.key).copyTo(contentFi);
-                newFileLength.put(f.value, 1);
-            }
-
-            if (fileLength.containsKey(f.value)) {
-                int fl = fileLength.get(f.value);
-                fl ++;
-                newFileLength.put(f.value, fl);
-                fileLength.removeKey(f.value);
+        for (var save : saveFiles) {
+            Fi contentFi = archiveDirectory.child(save.value.substring(0, 2)).child(save.value.substring(2));
+            if (fileLength.containsKey(save.value)) {
+                int saveInt = fileLength.get(save.value);
+                saveInt ++;
+                fileLength.put(save.value, saveInt);
             } else {
-                newFileLength.put(f.value, 1);
+                dataDirectory.child(save.key).copyTo(contentFi);
+                fileLength.put(save.value, 1);
             }
         }
 
-        if (fileLength.size != 0) {
-            for (var flk : fileLength) {
-                int fl = fileLength.get(flk.key);
-                fl --;
-                newFileLength.put(flk.key, fl);
-                fileLength.removeKey(flk.key);
-            }
-        }
 
         data.putObject(key +"-time", time.toString());
         data.putObject(key +"-name", name);
@@ -144,7 +127,7 @@ public class Archives {
             list.add(key);
             data.putList("archive-list", list);
         }
-        data.putMap("archive-file-length", newFileLength);
+        data.putMap("archive-file-length", fileLength);
 
         data.saveValues();
     }
