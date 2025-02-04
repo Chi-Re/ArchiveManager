@@ -107,7 +107,7 @@ public class DataFile {
     }
 
     public synchronized String getString(String name){
-        return get(name, "").toString();
+        return get(name, "untitled").toString();
     }
 
     public synchronized <T> T getDataClass(String name, Class<T> type, Class elementType, Prov<T> def){
@@ -213,5 +213,12 @@ public class DataFile {
                 throw new IOException("Trailing settings data; expected EOF, but got: " + end);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DataFile{" +
+                "values=" + values +
+                '}';
     }
 }
