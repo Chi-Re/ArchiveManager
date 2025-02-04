@@ -72,10 +72,6 @@ public class ArchiveInfoDialog extends BaseDialog {
 
         table.row();
 
-        table.button("测试", ()->{
-
-        }).color(Pal.accent).fillX().padTop(10);
-
         ScrollPane pane = new ScrollPane(table);
         cont.add(pane);
 

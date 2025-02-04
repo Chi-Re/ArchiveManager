@@ -8,6 +8,7 @@ import chire.archivemanager.archive.Archives;
 import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.ArchiveDialog;
 import chire.archivemanager.ui.ArchiveInfoDialog;
+import chire.archivemanager.ui.modifier.PausedDialogModifier;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.mod.Mod;
@@ -28,6 +29,8 @@ public class ArchiveManager extends Mod {
 
     public static DataFile data;
 
+    public PausedDialogModifier paused;
+
     @Override
     public void loadContent(){
     }
@@ -39,6 +42,8 @@ public class ArchiveManager extends Mod {
         infoDialog = new ArchiveInfoDialog();
 
         archiveDialog = new ArchiveDialog();
+
+        paused = new PausedDialogModifier();
 
         if(Vars.ui != null && Vars.ui.settings != null) {
             Vars.ui.menufrag.addButton("@archive.button.name", Icon.save, archiveDialog::show);
