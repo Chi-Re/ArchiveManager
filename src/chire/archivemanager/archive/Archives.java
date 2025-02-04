@@ -8,6 +8,7 @@ import arc.util.ArcRuntimeException;
 import arc.util.Log;
 import arc.util.io.Streams;
 import chire.archivemanager.ArchiveManager;
+import chire.archivemanager.io.DataFile;
 import mindustry.core.Version;
 
 import javax.annotation.processing.FilerException;
