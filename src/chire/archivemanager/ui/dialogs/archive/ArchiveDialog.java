@@ -1,37 +1,23 @@
-package chire.archivemanager.ui;
+package chire.archivemanager.ui.dialogs.archive;
 
 import arc.Core;
 import arc.files.Fi;
-import arc.func.Cons;
 import arc.graphics.Color;
-import arc.graphics.g2d.TextureRegion;
 import arc.scene.style.Drawable;
 import arc.scene.ui.TextButton;
 import arc.scene.ui.Tooltip;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
-import arc.struct.ArrayMap;
-import arc.struct.Seq;
 import arc.util.Log;
-import arc.util.Nullable;
-import arc.util.Strings;
-import chire.archivemanager.archive.Archives;
 import chire.archivemanager.archive.LoadedArchive;
-import chire.archivemanager.io.DataFile;
-import mindustry.game.MapObjectives;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
-import mindustry.mod.Mods;
-import mindustry.ui.BorderImage;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 
-import java.io.IOException;
-
 import static chire.archivemanager.ArchiveManager.*;
 import static mindustry.Vars.*;
-import static mindustry.Vars.mobile;
 
 public class ArchiveDialog extends BaseDialog {
     private float scroll = 0f;

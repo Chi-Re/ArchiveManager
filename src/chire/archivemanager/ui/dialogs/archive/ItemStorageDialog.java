@@ -1,4 +1,4 @@
-package chire.archivemanager.ui;
+package chire.archivemanager.ui.dialogs.archive;
 
 import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Label;

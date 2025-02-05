@@ -1,4 +1,4 @@
-package chire.archivemanager.ui;
+package chire.archivemanager.ui.dialogs.archive;
 
 import arc.scene.ui.TextField;
 import arc.util.Log;

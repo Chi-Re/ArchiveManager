@@ -1,26 +1,13 @@
-package chire.archivemanager.ui;
+package chire.archivemanager.ui.dialogs.archive;
 
-import arc.Core;
-import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
-import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
-import arc.struct.ArrayMap;
-import arc.util.Align;
 import arc.util.Scaling;
 import chire.archivemanager.archive.LoadedArchive;
-import chire.archivemanager.game.SectorSlot;
-import chire.archivemanager.ui.layout.StatLabel;
 import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
-import mindustry.ui.ItemImage;
-import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 
-import java.util.ArrayList;
-
-import static mindustry.Vars.content;
 import static mindustry.Vars.iconXLarge;
 
 public class ArchiveInfoDialog extends BaseDialog {

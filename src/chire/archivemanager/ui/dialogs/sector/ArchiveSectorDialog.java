@@ -1,4 +1,4 @@
-package chire.archivemanager.ui;
+package chire.archivemanager.ui.dialogs.sector;
 
 import arc.Core;
 import arc.scene.ui.TextButton;

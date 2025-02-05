@@ -1,18 +1,15 @@
 package chire.archivemanager;
 
 import arc.Core;
-import arc.Settings;
 import arc.files.Fi;
-import arc.util.Log;
 import chire.archivemanager.archive.Archives;
 import chire.archivemanager.io.DataFile;
-import chire.archivemanager.ui.ArchiveDialog;
-import chire.archivemanager.ui.ArchiveInfoDialog;
+import chire.archivemanager.ui.dialogs.archive.ArchiveDialog;
+import chire.archivemanager.ui.dialogs.archive.ArchiveInfoDialog;
 import chire.archivemanager.ui.modifier.PausedDialogModifier;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.mod.Mod;
-import mindustry.ui.dialogs.SettingsMenuDialog;
 
 import java.io.IOException;
 
