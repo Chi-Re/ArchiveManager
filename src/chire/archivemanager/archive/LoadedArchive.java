@@ -75,21 +75,14 @@ public class LoadedArchive {
             Fi mapFile = archiveDirectory
                     .child(save.value.substring(0, 2))
                     .child(save.value.substring(2));
-            String name;
-            int dotIndex = save.key.lastIndexOf('.');
-            int slaIndex = save.key.lastIndexOf('/');
-            name = save.key.substring(slaIndex+1, dotIndex);
 
             if (save.key.contains("saves/") && save.key.contains("sector-") && save.key.contains(".msav")) {
                 boolean backup = save.key.contains(".msav-backup.msav");
                 try{
                     maps.add(new SectorSlot(SaveIO.getMeta(SaveIO.getStream(mapFile)), mapFile, backup));
                 }catch(Throwable e){
-                    Log.err(e);
-                    String saveBackup = saveFiles.get(save.key+"-backup.msav");
-                    maps.add(new SectorSlot(SaveIO.getMeta((archiveDirectory
-                            .child(saveBackup.substring(0, 2))
-                            .child(saveBackup.substring(2)))), mapFile, backup));
+                    //TODO 之后添加显示相关的
+                    //Log.err(e);
                 }
             }
         }

@@ -27,7 +27,7 @@ public class SaveDialog extends BaseDialog {
         this(()->{});
     }
 
-    public void setup(){
+    private void setup(){
         SaveConfig config = new SaveConfig();
         cont.clear();
 
