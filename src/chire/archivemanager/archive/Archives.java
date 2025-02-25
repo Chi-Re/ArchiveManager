@@ -4,14 +4,10 @@ import arc.Core;
 import arc.files.Fi;
 import arc.struct.ArrayMap;
 import arc.struct.Seq;
-import arc.util.ArcRuntimeException;
 import arc.util.Log;
 import arc.util.io.Streams;
-import chire.archivemanager.ArchiveManager;
-import chire.archivemanager.io.DataFile;
 import mindustry.core.Version;
 
-import javax.annotation.processing.FilerException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,18 +25,16 @@ import static arc.Core.settings;
 import static chire.archivemanager.ArchiveManager.archiveDirectory;
 import static chire.archivemanager.ArchiveManager.data;
 import static mindustry.Vars.*;
-import static mindustry.Vars.schematicDirectory;
 
 public class Archives {
-    public void init(){
-        ArrayMap<String, Integer> fl = data.getMap("archive-file-length", String.class, Integer.class);
+    private final Seq<Fi> backupFiles = new Seq<>();
 
-        for (var key : data.getList("archive-list", String.class)) {
-            Log.info(key);
-            for (var c : data.getMap(key +"-saveFiles", String.class, String.class)) {
-                Log.info(c.key+"="+c.value+": "+fl.get(c.value));
-            }
-        }
+    public void init(){
+        backupFiles.add(Core.settings.getSettingsFile());
+        backupFiles.addAll(customMapDirectory.list());
+        backupFiles.addAll(saveDirectory.list());
+        backupFiles.addAll(modDirectory.list());
+        backupFiles.addAll(schematicDirectory.list());
     }
 
     public void load(LoadedArchive loaded) throws Exception{
@@ -183,14 +177,15 @@ public class Archives {
     }
 
     public Seq<Fi> getCopyFiles(){
-        //TODO 之后添加可拓展存档文件的功能
-        Seq<Fi> files = new Seq<>();
-        files.add(Core.settings.getSettingsFile());
-        files.addAll(customMapDirectory.list());
-        files.addAll(saveDirectory.list());
-        files.addAll(modDirectory.list());
-        files.addAll(schematicDirectory.list());
-        return files;
+        return backupFiles;
+    }
+
+    public void addBackupFile(Fi file){
+        backupFiles.add(file);
+    }
+
+    public void addBackupFile(Fi[] files){
+        backupFiles.addAll(files);
     }
 
     /**
