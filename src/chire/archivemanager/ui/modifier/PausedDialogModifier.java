@@ -5,6 +5,7 @@ import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 
+import static chire.archivemanager.ArchiveManager.sectorDialog;
 import static mindustry.Vars.*;
 
 public class PausedDialogModifier {
@@ -22,11 +23,11 @@ public class PausedDialogModifier {
 
         if(!mobile){
             if (state.rules.sector != null) cont.button("@sectors.save", Icon.book, ()->{
-
+                sectorDialog.show(state.rules.sector);
             }).colspan(2).width(dw + 10f);
         } else {
             if (state.rules.sector != null) cont.buttonRow("@sectors.save", Icon.book, ()->{
-
+                sectorDialog.show(state.rules.sector);
             });
         }
     }

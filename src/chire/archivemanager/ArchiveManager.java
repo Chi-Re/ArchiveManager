@@ -2,12 +2,16 @@ package chire.archivemanager;
 
 import arc.Core;
 import arc.files.Fi;
+import arc.util.Log;
 import chire.archivemanager.archive.Archives;
+import chire.archivemanager.archive.sector.Sectors;
 import chire.archivemanager.io.DataFile;
 import chire.archivemanager.ui.dialogs.archive.ArchiveDialog;
 import chire.archivemanager.ui.dialogs.archive.ArchiveInfoDialog;
+import chire.archivemanager.ui.dialogs.sector.ArchiveSectorDialog;
 import chire.archivemanager.ui.modifier.PausedDialogModifier;
 import mindustry.Vars;
+import mindustry.game.SectorInfo;
 import mindustry.gen.Icon;
 import mindustry.mod.Mod;
 
@@ -22,7 +26,13 @@ public class ArchiveManager extends Mod {
 
     public static Archives archive;
 
+    public static Sectors archiveSectors;
+
+    public static ArchiveSectorDialog sectorDialog;
+
     public static Fi archiveDirectory = Vars.dataDirectory.child("archives");
+
+    public static Fi sectorDirectory = Vars.dataDirectory.child("archive-sectors");
 
     public static DataFile data;
 
@@ -40,7 +50,10 @@ public class ArchiveManager extends Mod {
 
         archiveDialog = new ArchiveDialog();
 
-        paused = new PausedDialogModifier();
+        sectorDialog = new ArchiveSectorDialog();
+
+        //关于区块存档的代码
+        //paused = new PausedDialogModifier();
 
         if(Vars.ui != null && Vars.ui.settings != null) {
             Vars.ui.menufrag.addButton("@archive.button.name", Icon.save, archiveDialog::show);
@@ -58,6 +71,7 @@ public class ArchiveManager extends Mod {
 
         //====================loadContent=======================
         archive = new Archives();
+        archiveSectors = new Sectors();
         data = new DataFile(archiveDirectory.child("setting.dat"));
         if (data.getFile().exists()){
             try {
@@ -67,6 +81,7 @@ public class ArchiveManager extends Mod {
             }
             archive.init();
         }
+        archiveSectors.init();
     }
 
     public static String getBundle(String str){

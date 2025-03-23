@@ -16,6 +16,8 @@ import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 
+import java.util.ArrayList;
+
 import static chire.archivemanager.ArchiveManager.*;
 import static mindustry.Vars.*;
 
@@ -55,14 +57,16 @@ public class ArchiveDialog extends BaseDialog {
 
         cont.row();
 
-        if(!archive.list().isEmpty()){
+        ArrayList<LoadedArchive> archives = archive.list();
+
+        if(!archives.isEmpty()){
             cont.pane(c -> {
                 Table table = c.margin(10f).top();
 
                 table.clear();
 
                 table.image().growX().height(4f).pad(6f).color(Pal.gray).row();
-                for (LoadedArchive item : archive.list()) {
+                for (LoadedArchive item : archives) {
                     table.row();
 //                    table.image().growX().height(4f).pad(6f).color(Pal.gray).row();
                     Drawable background = Styles.flatBordert.up;

@@ -9,6 +9,7 @@ import arc.util.Nullable;
 import arc.util.Strings;
 import mindustry.game.Gamemode;
 import mindustry.io.MapIO;
+import mindustry.io.SaveIO;
 import mindustry.io.SaveMeta;
 import mindustry.maps.Map;
 
@@ -40,6 +41,10 @@ public class SectorSlot {
         } catch (Exception e) {
             Log.info(e);
         }
+    }
+
+    public SectorSlot(Fi file, boolean backup) {
+        this(SaveIO.getMeta(SaveIO.getStream(file)), file, backup);
     }
 
     public String get(String key) {
